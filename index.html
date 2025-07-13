@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>This is the title of the webpage!</title>
+  </head>
+  <style>
+    #container {
+      text-align: center;
+    }
+  </style>
+  <body>
+    <div id="container"></div>
+    <script>
+      const leftEyeCenterX = 14;
+      const rightEyeCenterX = 40;
+      const eyeCenterY = 15;
+      const eyeBallOffset = 4.5;
+
+      // track mouse position as user moves
+      let mouseX = document.body.clientWidth / 2;
+      let mouseY = document.body.clientHeight / 2;
+
+      document.addEventListener("mousemove", function (ev) {
+        mouseX = ev.clientX;
+        mouseY = ev.clientY;
+      });
+
+      function initEyes() {
+        let canvas = document.createElement("canvas");
+
+        if (!isCanvasSupported(canvas)) return;
+
+        canvas.width = 60;
+        canvas.height = 30;
+
+        let containerEl = document.getElementById("container");
+        containerEl.appendChild(canvas);
+
+        function drawEyes() {
+          let lookAtX;
+          let lookAtY;
+
+          lookAtX = mouseX;
+          lookAtY = mouseY;
+
+          if (lookAtX && lookAtY) {
+            var canvasRect = canvas.getBoundingClientRect();
+
+            let documentLeftEyeCenterX = canvasRect.left + leftEyeCenterX;
+            let documentRightEyeCenterX = canvasRect.left + rightEyeCenterX;
+            let documentEyeCenterY = canvasRect.top + eyeCenterY;
+
+            // clear the canvas
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+
+            // left eye
+            let diffX = lookAtX - documentLeftEyeCenterX;
+            let diffY = lookAtY - documentEyeCenterY;
+            let angle = Math.atan2(diffY, diffX);
+            drawEyeBall(ctx, leftEyeCenterX, eyeCenterY, angle);
+
+            // right eye
+            diffX = lookAtX - documentRightEyeCenterX;
+            diffY = lookAtY - documentEyeCenterY;
+            angle = Math.atan2(diffY, diffX);
+            drawEyeBall(ctx, rightEyeCenterX, eyeCenterY, angle);
+          }
+
+          window.requestAnimationFrame(drawEyes);
+        }
+
+        window.requestAnimationFrame(drawEyes);
+      }
+
+      function drawEyeBall(ctx, centerX, centerY, angle) {
+        let eyeBallCenterX = eyeBallOffset * Math.cos(angle) + centerX;
+        let eyeBallCenterY = eyeBallOffset * Math.sin(angle) + centerY;
+
+        ctx.save();
+        ctx.scale(0.92, 1);
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 12, 0, 2 * Math.PI);
+        ctx.fillStyle = 'black';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 8.5, 0, 2 * Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(eyeBallCenterX, eyeBallCenterY, 4.5, 0, 2 * Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(eyeBallCenterX, eyeBallCenterY, 4.5, 0, 2 * Math.PI);
+        ctx.fillStyle = 'black';
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function rescaleCanvas(canvas) {
+        // might need this...revisit example code if so
+        // omitting now because I don't feel like doing it
+      }
+
+      function isCanvasSupported(el) {
+        return !!(el.getContext && el.getContext("2d"));
+      }
+
+      initEyes();
+    </script>
+  </body>
+</html>
